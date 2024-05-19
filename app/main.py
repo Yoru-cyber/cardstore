@@ -1,9 +1,10 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from flasgger import Swagger
+from flask_cors import CORS
+
 
 class Base(DeclarativeBase):
     pass
@@ -12,10 +13,8 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 
 app = Flask(__name__)
-app.config['SWAGGER'] = {
-    'title': 'User service API',
-    'uiversion': 2
-}
+app.config["SWAGGER"] = {"title": "User service API", "uiversion": 2}
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173/"}})
 swagger = Swagger(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 
@@ -54,17 +53,17 @@ def create_user():
         User:
             type: object
             properties:
-                username: 
+                username:
                     type: string
-                password: 
+                password:
                     type: string
-                email: 
+                email:
                     type: string
     responses:
         201:
             description: confirmation message
             content: application/json
-            schema: 
+            schema:
                 $ref: '#/definitions/User'
             examples:
                 message: 'user created'
@@ -92,7 +91,7 @@ def user_detail(id):
         201:
             description: confirmation message
             content: application/json
-            schema: 
+            schema:
                 $ref: '#/definitions/User'
             examples:
                 username: 'foo'
@@ -107,9 +106,9 @@ def user_detail(id):
     }, 200
 
 
-@app.route("/user/<int:id>", methods=["POST"])
+@app.route("/user/<int:id>", methods=["DELETE"])
 def user_delete(id):
-    """Retrieves an user from database
+    """Removes an user from database
     ---
     parameters:
         - name: id
@@ -120,7 +119,7 @@ def user_delete(id):
         201:
             description: confirmation message
             content: application/json
-            schema: 
+            schema:
                 $ref: '#/definitions/User'
             examples:
                 message: 'user deleted'
@@ -131,4 +130,45 @@ def user_delete(id):
     return {"message": "user deleted"}, 200
 
 
-
+@app.route("/users/<int:id>", methods=["PUT"])
+def update_user(id):
+    """Updates an existing user in the database.
+    ---
+    parameters:
+        - name: username
+          in: body
+          required: true
+          type: string
+        - name: password
+          required: true
+          in: body
+          type: string
+        - name: email
+          required: true
+          in: body
+          type: string
+    definitions:
+        User:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                email:
+                    type: string
+    responses:
+        201:
+            description: confirmation message
+            content: application/json
+            schema:
+                $ref: '#/definitions/User'
+            examples:
+                message: 'user updated'
+    """
+    user = db.get_or_404(User, id)
+    user.username = request.form["username"]
+    user.password = request.form["password"]
+    user.email = request.form["email"]
+    db.session.commit()
+    return {"message": "user updated"}, 200
