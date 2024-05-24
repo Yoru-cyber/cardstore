@@ -49,4 +49,4 @@ Docker compose up --build
 - Reverse Proxy ⏳
 
 ### Docs
-You can access the docs by going to http://localhost:<span style="color: red">port</span>/apidocs with the port of the service
+You can access the docs by going to http://localhost:port/apidocs with the ***port*** of the service
