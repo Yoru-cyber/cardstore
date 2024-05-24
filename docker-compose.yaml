@@ -17,6 +17,21 @@ services:
       - "5000:5000"  # Flask app port (can be customized)
         #    environment:
      #- FLASK_ENV=development  # Optional: Set Flask environment
+  
+  cards-service:
+    build: ./app-cards/  # Replace with path to your Flask app directory
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_URI      = ${DB_URI}
+      - CORS_ORIGIN = ${CORS_ORIGIN}
+    volumes:
+      - ./app-cards/:/src/
+    ports:
+      - "3000:3000"  # Flask app port (can be customized)
+        #    environment:
+     #- FLASK_ENV=development  # Optional: Set Flask environment
 
   nginx:
     image: nginx:latest
@@ -24,11 +39,24 @@ services:
     links:
       - flask-app:flask-app
       - react-app:react-app
+      - cards-service:cards-service
     ports:
       - "80:80"  # Host port to access the application
     depends_on:
       - flask-app
+      - cards-service
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro  # Mount your Nginx config
-
+  database:
+    image: postgres:latest
+    command: ["postgres", "-c", "hba_file=/var/lib/foo/pg_hba.conf"]
+    volumes:
+      - ./db-data/:/var/lib/postgresql/data/
+      - ./pg_hba.conf/:/var/lib/foo/pg_hba.conf
+    ports:
+      - "5432:5432" 
+    environment:
+      - POSTGRES_DB       = cardstore
+      - POSTGRES_USER     = user
+      - POSTGRES_PASSWORD = 1234
 
