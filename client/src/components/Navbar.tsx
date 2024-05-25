@@ -1,19 +1,27 @@
+import { Link } from "react-router-dom";
 function NavBar() {
   return (
     <>
       <nav className="flex flex-row p-2 items-center">
         <span className="flex flex-row items-center mr-5">
-          <h2 className="font-bold">Cardstore</h2>
+          <Link to="/" className="font-bold text-2xl mr-2">Cardstore</Link>
+          <img src="./vite.svg" alt="" />
         </span>
-        <a href="/" className="m-2">
+        <Link to="/" className="m-2">
           Home
-        </a>
-        <a href="/about" className="m-2">
+        </Link>
+        <Link to="/about" className="m-2">
           About
-        </a>
-        <a href="/cards" className="m-2">
+        </Link>
+        <Link to="/cards" className="m-2">
           Cards
-        </a>
+        </Link>
+        <Link
+          to="/signup"
+          className="m-2 outline outline-1 outline-blue-800/80 bg-blue-800/30 rounded-md p-1 text-blue-100/90 text-indigo-300"
+        >
+         Sign up
+        </Link>
       </nav>
     </>
   );
